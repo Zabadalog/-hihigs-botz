@@ -3,9 +3,9 @@ Ranepa telegram bot for education
 
 ## Запуск проекта
 
-
 1. Для запуска проекта стяните его с помощью 'git clone'
 2. Полученный токен в (BotFather) ('https://t.me/BotFather') вставить в созданный файл '.env'
+
 
 ```
 TOKEN=<ВАШ ТОКЕН>
