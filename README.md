@@ -66,7 +66,7 @@ docker ps
 5. Для автоматизированной сборки нескольких контейнеров воспользуйтесь docker-compose
 
 ```
-docker-compose -up --build -d
+docker-compose up --build -d
 ```
 
 Проверить состоятние запущенного контейнера для docker-compose
