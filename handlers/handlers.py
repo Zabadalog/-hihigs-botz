@@ -2,9 +2,6 @@ import logging
 from aiogram.filters import Command
 from aiogram import Router
 
-# Установка логирования по умолчанию
-logging.basicConfig(level=logging.INFO)
-
 router = Router()
 
 @router.message(Command("help"))
