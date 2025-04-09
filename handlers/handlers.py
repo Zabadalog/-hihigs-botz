@@ -1,26 +1,25 @@
-__all__ = [
-    'register_message_handlers'
-]
-
-
-# TODO - Опишите вызов функций обработчиков через маршрутизацию
-# Работа c Router - https://docs.aiogram.dev/en/v3.14.0/dispatcher/router.html
-# Пример работы с Router через декораторы @router - https://mastergroosha.github.io/aiogram-3-guide/routers/
-# Пример работы с Router через функцию сборщик https://stackoverflow.com/questions/77809738/how-to-connect-a-router-in-aiogram-3-x-x#:~:text=1-,Answer,-Sorted%20by%3A
-
-
-from aiogram import types, Router
+import logging
 from aiogram.filters import Command
-from .keyboard import keyboard  # импорт из клавиатур
-from .callbacks import callback_message  # импорт из коллбека
+from aiogram import Router, F
+from .keyboard import main_keyboard
 
+router = Router()
 
-async def process_start_command(message: types.Message):
-    '''Команда start'''
-    await message.answer(text="Привет!")
+@router.message(Command("help"))
+async def process_start_command(message):
+    await message.answer("ПОМОГИ!")
+    logging.info(f"User with id={message.from_user.id} need help")
 
+@router.message(Command(commands=["start", "status"]))
+async def process_start_command(message):
+    await message.reply(f"ID{message.from_user.id}, User: {message.from_user.username}", reply_markup=main_keyboard)
+    logging.info(f"User with id={message.from_user.id} launched the bot")
 
-# Здесь описывается маршрутизация
-def register_message_handlers():
-    '''Маршрутизация обработчиков'''
-    pass
+@router.message()
+async def echo_message(message):
+    await message.answer(message.text)
+    logging.info(f"User with id={message.from_user.id} sent an unprocessable message")
+
+@router.callback_query(F.data.startswith("continue"))
+async def callback_continue(callback):
+    await callback.message.answer(text="Успешно вызван callback!")
