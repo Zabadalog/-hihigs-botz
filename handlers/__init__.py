@@ -2,5 +2,5 @@
 # и импортировать из него содержимое
 
 from .handlers import router
-from .bot_commands import set_my_commands
+from .bot_commands import set_commands
 from .logging import set_up_logger
