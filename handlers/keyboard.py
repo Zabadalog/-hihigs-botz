@@ -1,7 +1,4 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-main_keyboard_list = [
-    [KeyboardButton(text="Статус"), KeyboardButton(text="Помощь")]
-]
-
-main_keyboard = ReplyKeyboardMarkup(keyboard=main_keyboard_list, resize_keyboard=True, one_time_keyboard=True)
+button_continue = [[InlineKeyboardButton(text="Далее", callback_data="continue_button")]]
+main_keyboard = InlineKeyboardMarkup(inline_keyboard=button_continue)
