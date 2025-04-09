@@ -1,8 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 from config import TOKEN
-from handlers import router
-from handlers import set_up_logger
+from handlers import router, set_my_commands, set_up_logger
 
 async def main():
     bot = Bot(token=TOKEN)
@@ -12,7 +11,9 @@ async def main():
     # Запуск логирования
     set_up_logger(fname=__name__)
 
-    # Запуск бота в polling-режиме
+    await set_my_commands(bot)
+
+    # Запуск бота в polling-режим
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
