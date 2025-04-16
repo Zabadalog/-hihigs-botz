@@ -1,5 +1,4 @@
 # -hihigs-bot
-
 Ranepa telegram bot for education (computer science)
 
 ## 1. Установка
