@@ -6,7 +6,7 @@ from .keyboard import main_keyboard
 router = Router()
 
 @router.message(Command("help"))
-async def process_start_command(message):
+async def process_help_command(message):
     await message.answer("ПОМОГИ!")
     logging.info(f"User with id={message.from_user.id} need help")
 
