@@ -7,7 +7,7 @@ router = Router()
 
 @router.message(Command("help"))
 async def process_help_command(message):
-    await message.answer("ПОМОГИ!")
+    await message.answer(text="ПОМОГИ!")
     logging.info(f"User with id={message.from_user.id} need help")
 
 @router.message(Command(commands=["start", "status"]))
