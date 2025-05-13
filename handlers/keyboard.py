@@ -16,4 +16,3 @@ main_keyboard = InlineKeyboardMarkup(inline_keyboard=button_continue)
 main_keyboard_start = InlineKeyboardMarkup(inline_keyboard=[
     [button_student, button_tutor]
     ])
-
