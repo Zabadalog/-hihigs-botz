@@ -1,20 +1,27 @@
 import asyncio
+import logging
+
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
 from config import TOKEN
-from handlers import router, set_my_commands, set_up_logger
+from handlers import all_routers, set_my_commands, set_up_logger, callbacks
+from db import async_create_table
 
 async def main():
     bot = Bot(token=TOKEN)
-    dp = Dispatcher()
-    dp.include_routers(router)
+    dp = Dispatcher(storage=MemoryStorage())
+    dp.include_routers(*all_routers)
 
-    # Запуск логирования
     set_up_logger(fname=__name__)
 
+    await async_create_table()
     await set_my_commands(bot)
 
-    # Запуск бота в polling-режим
+    logging.info("Бот запускается...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("End Script!")
