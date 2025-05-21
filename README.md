@@ -106,3 +106,6 @@ docker-compose down
 ```
 docker-compose restart
 ```
+Создайте папку logs
+
+Создай папку instance и в ней файл sqlite.db
