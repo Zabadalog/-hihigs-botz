@@ -6,3 +6,10 @@ services:
     env_file:
       - .env
     restart: always
+  logic:
+    build:
+      context: .
+      dockerfile: script/Dockerfile
+    env_file:
+      - .env
+    restart: always

@@ -8,19 +8,36 @@ from sqlalchemy import select
 
 from db import async_session
 from db.models import User
+from script.classes import YaDiskManager
 from handlers.keyboard import main_keyboard_start
 
 router = Router()
+yd_manager = YaDiskManager()
+
+
+@router.callback_query(F.data == "continue_button")
+async def callback_continue(callback: types.CallbackQuery):
+    await callback.message.answer(text="Успешно вызван callback!")
+    if hasattr(callback, "answer"):
+        try:
+            await callback.answer()  # type: ignore[func-returns-value]
+        except TypeError:
+            callback.answer()
 
 class RegisterStates(StatesGroup):
     choosing_role = State()
     entering_tutor_code = State()
 
 @router.message(Command("start"))
-async def process_start_command(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer("Выберите вашу роль:", reply_markup=main_keyboard_start)
-    await state.set_state(RegisterStates.choosing_role)
+async def process_start_command(message: types.Message, state: FSMContext | None = None):
+    if state:
+        await state.clear()
+    await message.reply(
+        f"ID{message.from_user.id}, User: {message.from_user.username}",
+        reply_markup=main_keyboard_start,
+    )
+    if state:
+        await state.set_state(RegisterStates.choosing_role)
 
 @router.message(Command("status"))
 async def process_status_command(message: types.Message):
@@ -59,10 +76,61 @@ async def process_status_command(message: types.Message):
         else:
             await message.answer("Невозможно определить ваш статус.")
 
+        if user.token:
+            await message.answer(f"Ваш токен Яндекс Диска: {user.token}")
+        else:
+            await message.answer("Токен Яндекс Диска не задан. Используйте /register")
+
+
+@router.message(Command("register"))
+async def process_register_command(message: types.Message):
+    instructions = (
+        "Процесс получения токена Яндекс Диска:\n"
+        "1. Перейдите по ссылке https://oauth.yandex.ru/client/new\n"
+        "2. Создайте приложение, выберите 'Веб-сервисы' и укажите Redirect URI https://oauth.yandex.ru/verification_code\n"
+        "3. Отметьте права доступа к диску, затем получите client_id.\n"
+        "4. Перейдите по ссылке https://oauth.yandex.ru/authorize?response_type=token&client_id=<ВАШ client_id>\n"
+        "5. Полученный токен отправьте командой /token <ваш_токен>"
+    )
+    await message.answer(instructions)
+
+
+@router.message(Command("token"))
+async def process_token_command(message: types.Message):
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer("Укажите токен после команды /token")
+        return
+    token = parts[1].strip()
+    await yd_manager.save_token(message.from_user.id, token)
+    if await yd_manager.check_token():
+        await message.answer("Токен сохранен и проверен")
+    else:
+        await message.answer("Не удалось проверить токен")
+
+
+@router.message(Command("add"))
+async def process_add_command(message: types.Message):
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await message.answer("Укажите путь к папке после команды /add")
+        return
+    folder = parts[1].strip()
+    await yd_manager.add_folder(message.from_user.id, folder)
+    await message.answer(f"Папка {folder} добавлена в отслеживаемые")
+    async with async_session() as session:
+        result = await session.execute(select(User.user_id).where(User.subscribe == message.from_user.id))
+        students = [row[0] for row in result.fetchall()]
+    for stud in students:
+        try:
+            await message.bot.send_message(stud, f"Преподаватель начал отслеживать папку: {folder}")
+        except Exception:
+            logging.warning(f"Не удалось уведомить пользователя {stud}")
+
 
 @router.message(Command("help"))
 async def process_help_command(message: types.Message):
-    await message.answer("Напишите /start, чтобы зарегистрироваться.\nНапишите /status, чтобы узнать статус.")
+    await message.answer(text="ПОМОГИ!")
 
 @router.callback_query(F.data == "button_student")
 async def handle_student(callback: types.CallbackQuery, state: FSMContext):
