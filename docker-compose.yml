@@ -6,3 +6,12 @@ services:
     env_file:
       - .env
     restart: always
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_PASSWORD=example
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

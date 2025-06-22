@@ -17,10 +17,9 @@ class RegisterStates(StatesGroup):
     entering_tutor_code = State()
 
 @router.message(Command("start"))
-async def process_start_command(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer("Выберите вашу роль:", reply_markup=main_keyboard_start)
-    await state.set_state(RegisterStates.choosing_role)
+async def process_start_command(message: types.Message):
+    text = f"ID{message.from_user.id}, User: {message.from_user.username}"
+    await message.reply(text, reply_markup=main_keyboard_start)
 
 @router.message(Command("status"))
 async def process_status_command(message: types.Message):
@@ -62,7 +61,7 @@ async def process_status_command(message: types.Message):
 
 @router.message(Command("help"))
 async def process_help_command(message: types.Message):
-    await message.answer("Напишите /start, чтобы зарегистрироваться.\nНапишите /status, чтобы узнать статус.")
+    await message.answer(text="ПОМОГИ!")
 
 @router.callback_query(F.data == "button_student")
 async def handle_student(callback: types.CallbackQuery, state: FSMContext):
@@ -128,6 +127,11 @@ async def handle_tutor(callback: types.CallbackQuery, state: FSMContext):
         parse_mode="Markdown"
     )
     await callback.answer()
+
+
+@router.callback_query(F.data == "continue_button")
+async def callback_continue(callback: types.CallbackQuery):
+    await callback.message.answer(text="Успешно вызван callback!")
 
 
 @router.message()
